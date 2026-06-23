@@ -10,5 +10,7 @@ export default {
     extend: {},
   },
   plugins: [daisyui],
-  themes: ["halloween"],
+  daisyui: {
+    themes: ["halloween","coffee"],
+  }
 }
