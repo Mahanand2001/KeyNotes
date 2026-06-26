@@ -2,7 +2,7 @@ import { ArrowLeftIcon } from "lucide-react";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { Link, useNavigate } from "react-router";
-import axios from "axios";
+import axiosInstance from "../lib/axios";
 
 const Create = () => {
 
@@ -17,15 +17,25 @@ const Create = () => {
     
     if(!title.trim() || !content.trim()){
       toast.error("All fields required.")
+      return;
     }
     setLoading(true)
     
     try {
-      await axios.post("http://localhost:5001/api/notes", {title, content})
+      await axiosInstance.post("/notes", {title, content})
       toast.success("Note created successfully.")
       navigate("/");
+
     } catch (error) {
+
       console.log("Error creating a note.", error)
+      if(error.response.status === 429){
+        toast.error("Slow Down, You're creating notes too fast.", {
+          duration: 4000,
+          icon: ""
+        })
+      }
+      else { toast.error("error creating a note.")}
     }
     finally{
       setLoading(false)
