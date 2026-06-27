@@ -1,9 +1,12 @@
 import { useEffect, useState } from "react"
 import axiosInstance from "../lib/axios"
-import { useParams } from "react-router"
+import { Link, useNavigate, useParams } from "react-router"
 import toast from "react-hot-toast";
+import { ArrowLeftIcon, LoaderIcon, Trash2Icon } from "lucide-react";
 
 const NoteDetailPage = ({}) => {
+
+  const navigate = useNavigate();
   const {id} = useParams();
   const [note, setNote] = useState("")
   const [saving, setSaving] = useState(false)
@@ -28,16 +31,99 @@ const NoteDetailPage = ({}) => {
   fetchNote();
   }, [id])
 
-  const handleSaving = async (e) => {
-    e.preventDefault();
+  const handleSave = async () => {
     
-    if(!title.trim() || !content.trim()){ }
+    if(!note.title.trim() || !note.content.trim()){
+      toast.error("Please provide note title and content.")
+      return;
+    }
+
+    setSaving(true);
+    try {
+      await axiosInstance.put(`/notes/${note._id}`, note);
+      toast.success("Note updated successfully.")
+      navigate("/")
+    } catch (error) {
+      console.log("Could not update the note.", error)
+      toast.error("Error updating note.")
+    }
   }
 
-  
+  const handleDelete = async (e) => {
+    e.preventDefault();  
+      if(!window.confirm("Are you sure to delete this note")) return;
+
+      try {
+        await axiosInstance.delete(`/notes/${id}`) 
+        toast.success("Note Deleted successfully")  
+        navigate("/")
+      } catch (error) {
+        console.log("error deleting a note", error)
+        toast.error("failed to delete the note.")
+      }
+  }
+
+  if(loading ){
+    return (
+      <div className="min-h-screen bg-base-200 flex items-center justify-center ">
+      <LoaderIcon className="animate-spin size-10" />
+    </div>
+    )
+    
+  }
   
   return (
-    <div className="container min-h-screen"></div>
+    <div className="min-h-screen bg-base-200">
+      <div className="container mx-auto px-4 py-8">
+        <div className="max-w-2xl mx-auto">
+          <div className="flex items-center justify-between mb-6">
+            <Link to="/" className="btn btn-ghost">
+              <ArrowLeftIcon className="h-5 w-5" />
+              Back to Notes
+            </Link>
+            <button onClick={handleDelete} className="btn btn-error btn-outline">
+              <Trash2Icon className="h-5 w-5" />
+              Delete Note
+            </button>
+          </div>
+
+          <div className="card bg-base-100">
+            <div className="card-body">
+              <div className="form-control mb-4">
+                <label className="label">
+                  <span className="label-text">Title</span>
+                </label>
+                <input
+                  type="text"
+                  placeholder="Note title"
+                  className="input input-bordered"
+                  value={note.title}
+                  onChange={(e) => setNote({ ...note, title: e.target.value })}
+                />
+              </div>
+
+              <div className="form-control mb-4">
+                <label className="label">
+                  <span className="label-text">Content</span>
+                </label>
+                <textarea
+                  placeholder="Write your note here..."
+                  className="textarea textarea-bordered h-32"
+                  value={note.content}
+                  onChange={(e) => setNote({ ...note, content: e.target.value })}
+                />
+              </div>
+
+              <div className="card-actions justify-end">
+                <button className="btn btn-primary" disabled={saving} onClick={handleSave}>
+                  {saving ? "Saving..." : "Save Changes"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   )
 }
 
