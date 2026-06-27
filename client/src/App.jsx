@@ -1,7 +1,7 @@
 
 import { Route, Routes } from 'react-router';
 import HomePage from './pages/HomePage';
-import Create from './pages/create';
+import Create from './pages/Create';
 import NoteDetailPage from './pages/NoteDetailPage';
 
 const  App = () => {
