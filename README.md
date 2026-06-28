@@ -43,3 +43,6 @@ cd client
 npm install
 npm run dev
 ```
+
+
+## link for Key Note application: https://keynotes-ftdn.onrender.com/
